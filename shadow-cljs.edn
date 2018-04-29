@@ -1,0 +1,28 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src" "app"]
+
+ :dependencies [[binaryage/devtools "0.9.7"]
+                [reagent "0.8.0"]
+                [cider/cider-nrepl "0.16.0-SNAPSHOT"]
+                [funcool/promesa "1.9.0"]]
+
+ :builds
+ {:app {:target :browser
+        :output-dir "public/js/compiled"
+        :asset-path "/js/compiled"
+
+        :modules
+        {:main
+         {:entries [context.core]}}
+
+        :devtools
+        ;; before live-reloading any code call this function
+        {:before-load context.core/stop
+         ;; after live-reloading finishes call this function
+         :after-load context.core/start
+         ;; serve the public directory over http at port 8700
+         :http-root    "public"
+         :http-port    8700
+         :preloads     [devtools.preload]}
+        }}}
