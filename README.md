@@ -5,7 +5,7 @@ A small library providing a nice way to access React 16's Context API in
 
 ## Installation
 
-Lein coordinates: `[lilactown/reagent-context "0.0.1"]`
+[![Clojars Project](https://img.shields.io/clojars/v/lilactown/reagent-context.svg)](https://clojars.org/lilactown/reagent-context)
 
 ## Basic usage
 
