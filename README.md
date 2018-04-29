@@ -27,7 +27,7 @@ and consumers. It implements the `IContext` protocol.
 (def my-context (context/create))
 ```
 
-### [provider {:keys [context value]} & children}] 
+### [provider {:keys [context value]} & children] 
 
 `provider` is a reagent component that takes a props map with the keys
 `:context` (required) and an initial value `:value` (optional). The value at the
