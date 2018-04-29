@@ -20,14 +20,14 @@ First, we require `reagent-context.core` into our namespace.
 
 ### (create)
 
-`create` instantiates a new React context that we can use to create providers
+`create` instantiates a new React context that we can use to make providers
 and consumers. It implements the `IContext` protocol.
 
 ```clojure
 (def my-context (context/create))
 ```
 
-### (provider {:keys [context value] & children}) 
+### [provider {:keys [context value] & children}] 
 
 `provider` is a reagent component that takes a props map with the keys
 `:context` (required) and an initial value `:value` (optional). The value at the
@@ -43,7 +43,7 @@ Any other args passed to provider is treated as children.
   [:div "And another one"]])
 ```
 
-### (consumer {:keys [context]} render)
+### [consumer {:keys [context]} render]
 
 `consumer` is a reagent component that access the React context we created
 and have provided. Takes a map of props with a `:context` key, whose value must
