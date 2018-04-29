@@ -69,7 +69,7 @@ can be written as:
 
 ```clojure
 (ns some-app
-  (:require [reagent.context.core :refer [defconsumer]]))
+  (:require [reagent.context.core :as context :refer [defconsumer]]))
 
 (defconsumer themed-button theme-context
   [theme props child]
@@ -84,7 +84,7 @@ can easily use it by passing the context instance to the `->Context` constructor
 
 ```clojure
 (ns some-app
-  (:require [reagent-context.core :refer [->Context]]
+  (:require [reagent-context.core :as context :refer [->Context]]
             ;; a React library that exposes a context instance
             ["some-lib" :as lib]))
 
@@ -96,7 +96,7 @@ given a `Provider` & `Consumer`. We can use the `interop` function to create a
 valid context for us:
 
 ```clojure
-(def lib-context (interop lib/Provider lib/Consumer))
+(def lib-context (context/interop lib/Provider lib/Consumer))
 ```
 
 ## Other helpful things
@@ -112,7 +112,7 @@ reagent.
 ```clojure
 (defn with-theme
   [render-fn]
-  (child-as-fn
+  (context/child-as-fn
     lib/ThemeConsumer
     render-fn))
     
