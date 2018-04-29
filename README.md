@@ -125,10 +125,79 @@ reagent.
 ## Gotchas
 
 Currently, **ratoms do not trigger re-renders inside of components passed into
-child-as-function**. Therefore, any components that depend on the state of a
-ratom that is being used inside of a context consumer will not reactively
-re-render.
+child-as-function**, because they do not exist within brackets `[]` like reagent
+expects.
 
+The effects of this can be mitigated somewhat by creating a component that holds
+all of the dependencies on context, and pass into that component any children
+that depend on a ratom. 
+
+That's a bit of a mouthful. Here's an example:
+
+```clojure
+(defn my-component []
+  (let [counter (r/atom 0)
+        inc! #(swap! counter inc)]
+    (fn []
+      [context/consumer {:context theme-context}
+       (fn [theme]
+         [:div {:class theme}
+          "Counter: " @counter
+          [:button {:on-click inc!} "increment"]])])))
+```
+
+This example shows a counter with an increment button, that derives a value
+`theme` from a context consumer.
+
+Unfortunately, our increment button doesn't quite work - the value of the atom
+changes, but our component never re-renders because the atom is not dereferenced
+inside of a reagent hiccup form (it does not treat the second `(fn [theme] ...)`
+correctly).
+
+*How do we fix this?* It's a bit inane, but for now, it works. We need the deref
+of the counter atom to show up in a reagent form. So we pull out the bit that
+relies on the context into it's own component:
+
+```clojure
+;; NOTE: we use `into` to avoid warnings about `key` prop in these examples
+
+(defn themed-box [& children]
+ [context/consumer {:context theme-context}
+  (fn [theme]
+    (into [:div {:class theme}] children))])
+    
+;; or using the defconsumer macro
+
+(defconsumer themed-box theme-context
+  [theme & children]
+  (into [:div {:class theme}] children))
+```
+
+And then use it like so:
+
+```clojure
+(defn my-component []
+  (let [counter (r/atom 0)
+        inc! #(swap! counter inc)]
+    (fn []
+      [themed-box
+       "Counter: " @counter
+       [:button {:on-click inc!} "increment"]])))
+```
+
+Now our counter re-renders as we would expect, because reagent sees our atom
+being dereferenced inside of a hiccup form.
+
+This doesn't mitigate *all* problems. The two big ones I see are:
+
+1. We cannot consume context and deref an atom in the same component, which is
+clunky. 
+
+2. Because of #1, we cannot deref an atom passed down through context.
+
+What this implies is that, if a context value depends on an atom, then that atom
+must be dereferenced by the *provider*, so that it will trigger a re-render to
+consumers that are listening to that context.
 
 ## License
 

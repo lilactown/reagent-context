@@ -9,14 +9,15 @@
 (defconsumer
   testing
   my-context
-  [{:keys [color toggle]}]
-  (into [:div {:style {:background-color color}}] "whatever"))
+  [{:keys [color toggle testing]} & children]
+  (js/console.log testing)
+  (into [:div {:style {:background-color color}}] children))
 
 (defn toggle-color [{:keys [color] :as state}]
   (merge state (if (= color "red") {:color "blue"} {:color "red"})))
 
 (defn page []
-  (let [state (r/atom {:color "pink" :toggle nil})
+  (let [state (r/atom {:color "pink" :toggle nil :testing (r/atom "purple")})
         toggle #(swap! state toggle-color)]
     (swap! state assoc :toggle toggle)
     (fn []
@@ -33,15 +34,24 @@
        [:h2 "hey"]]))
   )
 
+(defn toggle-testing [testing]
+  (js/console.log testing)
+  (if (= testing "green") "light-blue" "green"))
+
 (defn app-2 []
   (let [state (r/atom 0)
-        click! #(swap! state inc)]
+        other-state (r/atom "green")
+        click! #(reset! other-state "red")
+        click-inc! #(swap! state inc)]
     (fn []
+      (js/console.log @other-state)
       [context/provider
-       {:context my-context :value nil}
-       [:div
-        [:div "state: " @state
-         [:button {:on-click click!} "+"]]]])))
+       {:context my-context :value {:testing other-state}}
+       [testing
+        [:div
+         [:div "state: " @state
+          [:button {:on-click click-inc!} "+"]
+          [:button {:on-click click!} "color"]]]]])))
 
 (defn start []
   (r/render [page] (.getElementById js/document "app"))
